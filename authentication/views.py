@@ -1,7 +1,6 @@
-from rest_framework import generics
 from rest_framework.generics import GenericAPIView
-from authentication.serializers import RegisterSerializer
-from rest_framework import response, status
+from authentication.serializers import EmailVerificationSerializer, RegisterSerializer
+from rest_framework import response, status, views
 from rest_framework_simplejwt.tokens import RefreshToken
 import jwt
 from .models import User
@@ -9,6 +8,8 @@ from .utils import Util
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 from django.conf import settings
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 
 class RegisterAPIView(GenericAPIView):
@@ -36,7 +37,12 @@ class RegisterAPIView(GenericAPIView):
         return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class VerifyEmail(generics.GenericAPIView):
+class VerifyEmail(views.APIView):
+    serializer_class = EmailVerificationSerializer
+
+    token_param_config = openapi.Parameter('token', in_=openapi.IN_QUERY, description='Description', type=openapi.TYPE_STRING)
+
+    @swagger_auto_schema(manual_parameters=[token_param_config])
     def get(self, request):
         token = request.GET.get('token')
         try:
