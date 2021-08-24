@@ -95,7 +95,11 @@ class User(AbstractBaseUser, PermissionsMixin, TrackingModel):
     def __str__(self):
         return self.email
 
-    @property
-    def token(self):
+
+    def tokens(self):
         # token = jwt.encode({'username':self.username, 'email':self.email, 'exp':datetime.utcnow() + timedelta(hours=24)}, settings.SECRET_KEY, algorithm='HS256')
-        return ''
+        refresh = RefreshToken.for_user(self)
+        return {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token)
+        }

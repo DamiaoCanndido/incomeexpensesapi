@@ -34,25 +34,25 @@ class EmailVerificationSerializer(serializers.ModelSerializer):
 
 class LoginSerializer(serializers.ModelSerializer):
 
-    email = serializers.EmailField(max_length=128, min_length=5, write_only=True)
+    username = serializers.CharField(max_length=128, min_length=5, read_only=True)
+    email = serializers.EmailField(max_length=128, min_length=5)
     password = serializers.CharField(max_length=128, min_length=6, write_only=True)
+    tokens = serializers.CharField(max_length=555, min_length=5, read_only=True)
 
     def validate(self, attrs):
         email = attrs.get('email', '')
         password = attrs.get('password', '')
         user = auth.authenticate(email=email, password=password)
+        if not user:
+            raise AuthenticationFailed('Invalid credentials.')
         if not user.is_active:
             raise AuthenticationFailed('Account disabled.')
         if not user.email_verified:
             raise AuthenticationFailed('Email is not verified.')
-        if not user:
-            raise AuthenticationFailed('Invalid credentials.')
-        return {'username': user.username, 'email': user.email, 'tokens': {}}
+        return {'username': user.username, 'email': user.email, 'tokens': user.tokens}
         
-    '''
+    
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'token',)
-    '''
+        fields = ('username', 'email', 'password', 'tokens',)
 
-        # read_only_fields = ['token']

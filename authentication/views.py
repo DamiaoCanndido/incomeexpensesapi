@@ -1,5 +1,5 @@
 from rest_framework.generics import GenericAPIView
-from authentication.serializers import EmailVerificationSerializer, RegisterSerializer
+from authentication.serializers import EmailVerificationSerializer, LoginSerializer, RegisterSerializer
 from rest_framework import response, status, views
 from rest_framework_simplejwt.tokens import RefreshToken
 import jwt
@@ -61,10 +61,12 @@ class VerifyEmail(views.APIView):
 class LoginAPIView(GenericAPIView):
 
     authentication_classes = []
-    serializer_class = RegisterSerializer
+    serializer_class = LoginSerializer
 
     def post(self, request):
         user = request.data
         serializer = self.serializer_class(data=user)
-        serializer.is_valid(raise_exception=True)
+        if serializer.is_valid():
+            return response.Response(serializer.data, status=status.HTTP_200_OK)
+        return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
