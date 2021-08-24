@@ -57,3 +57,14 @@ class VerifyEmail(views.APIView):
         except jwt.exceptions.DecodeError as id:
             return response.Response({'error': 'Invalid token.'}, status=status.HTTP_400_BAD_REQUEST)
 
+
+class LoginAPIView(GenericAPIView):
+
+    authentication_classes = []
+    serializer_class = RegisterSerializer
+
+    def post(self, request):
+        user = request.data
+        serializer = self.serializer_class(data=user)
+        serializer.is_valid(raise_exception=True)
+

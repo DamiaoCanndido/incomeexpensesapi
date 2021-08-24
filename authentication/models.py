@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from helpers.models import TrackingModel
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
+from rest_framework_simplejwt.tokens import RefreshToken
 # from django.conf import settings
 # from datetime import datetime, timedelta
 
