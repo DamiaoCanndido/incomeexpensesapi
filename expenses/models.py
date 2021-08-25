@@ -3,7 +3,7 @@ from authentication.models import User
 from helpers.models import TrackingModel
 
 
-class Expenses(TrackingModel):
+class Expense(TrackingModel):
 
     CATEGORY_OPTIONS = [
         ('ONLINE_SERVICES', 'ONLINE_SERVICES'),
