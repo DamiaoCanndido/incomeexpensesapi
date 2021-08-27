@@ -9,6 +9,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 from django.conf import settings
 from drf_yasg.utils import swagger_auto_schema
+from .renderers import UserRenderer
 from drf_yasg import openapi
 
 
@@ -17,6 +18,7 @@ class RegisterAPIView(GenericAPIView):
     authentication_classes = []
 
     serializer_class = RegisterSerializer
+    renderer_classes = (UserRenderer,)
 
     def post(self ,request):
         serializer = self.serializer_class(data=request.data)
