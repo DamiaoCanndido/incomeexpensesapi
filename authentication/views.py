@@ -1,5 +1,6 @@
 from rest_framework.generics import GenericAPIView
-from authentication.serializers import EmailVerificationSerializer, LoginSerializer, RegisterSerializer
+from rest_framework.serializers import Serializer
+from authentication.serializers import EmailVerificationSerializer, LoginSerializer, RegisterSerializer, RequestPasswordResetEmailSerializer
 from rest_framework import response, status, views
 from rest_framework_simplejwt.tokens import RefreshToken
 import jwt
@@ -71,4 +72,21 @@ class LoginAPIView(GenericAPIView):
         if serializer.is_valid():
             return response.Response(serializer.data, status=status.HTTP_200_OK)
         return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class RequestPasswordResetEmail(GenericAPIView):
+
+    serializer_class = RequestPasswordResetEmailSerializer
+
+    def post(self, request):
+        data = {'request': request, 'data': request.data}
+        serializer = self.serializer_class(data=data)
+        if serializer.is_valid():
+            return response.Response(serializer.data, status=status.HTTP_200_OK)
+        return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PasswordTokenCheckAPI(GenericAPIView):
+    pass
+
 
