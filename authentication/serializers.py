@@ -1,13 +1,8 @@
-from authentication.utils import Util
 from django.contrib import auth
-from django.contrib.sites.shortcuts import get_current_site
-from django.urls.base import reverse
 from rest_framework import serializers
 from authentication.models import User
 from rest_framework.exceptions import AuthenticationFailed
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.utils.encoding import smart_str, force_str, smart_bytes, DjangoUnicodeDecodeError
-from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -68,23 +63,5 @@ class RequestPasswordResetEmailSerializer(serializers.Serializer):
 
     class Meta:
         fields = ['email']
-
-    def validate(self, attrs):
-        try:
-            email = attrs['data'].get('email', '')
-            if User.objects.filter(email=email).exists():
-                user = User.objects.get(email=email)
-                uidb64 = urlsafe_base64_encode(user.id)
-                token = PasswordResetTokenGenerator().make_token(user)
-                current_site = get_current_site(request=attrs['data'].get('request')).domain
-                relativeLink = reverse('email-verify')
-                absurl = 'http://'+current_site+relativeLink+"?token="+str(token)
-                email_body = 'Hi '+user.username+' Use link below to verify your email \n'+absurl
-                data={'email_body': email_body, 'to_email': user.email, 'email_subject': 'Verify your e-mail'}
-                Util.send_email(data)
-            return attrs
-        except ValueError:
-            print('Error')
         
-        return super().validate(attrs)
 

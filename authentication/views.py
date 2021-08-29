@@ -12,6 +12,12 @@ from django.conf import settings
 from drf_yasg.utils import swagger_auto_schema
 from .renderers import UserRenderer
 from drf_yasg import openapi
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.encoding import smart_str, force_str, smart_bytes, DjangoUnicodeDecodeError
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.contrib.sites.shortcuts import get_current_site
+from django.urls.base import reverse
+from authentication.utils import Util
 
 
 class RegisterAPIView(GenericAPIView):
@@ -79,14 +85,25 @@ class RequestPasswordResetEmail(GenericAPIView):
     serializer_class = RequestPasswordResetEmailSerializer
 
     def post(self, request):
-        data = {'request': request, 'data': request.data}
-        serializer = self.serializer_class(data=data)
-        if serializer.is_valid():
-            return response.Response(serializer.data, status=status.HTTP_200_OK)
-        return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.serializer_class(data=request.data)
+
+        email = request.data['email']
+
+        if User.objects.filter(email=email).exists():
+            user = User.objects.get(email=email)
+            uidb64 = urlsafe_base64_encode(smart_bytes(user.id))
+            token = PasswordResetTokenGenerator().make_token(user)
+            current_site = get_current_site(request=request).domain
+            relativeLink = reverse('password-reset-confirm', kwargs={'uidb64': uidb64, 'token': token})
+            absurl = 'http://'+current_site+relativeLink
+            email_body = 'Hi Use link below to reset your password \n'+absurl
+            data={'email_body': email_body, 'to_email': user.email, 'email_subject': 'Reset your password'}
+            Util.send_email(data)
+        return response.Response({'success': 'We have sent you a link to reset your password.'}, status=status.HTTP_200_OK)
 
 
 class PasswordTokenCheckAPI(GenericAPIView):
-    pass
+    def get(self, request, uidb64, token):
+        pass
 
 
