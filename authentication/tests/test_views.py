@@ -13,3 +13,8 @@ class TestViews(TestSetUp):
         self.assertEqual(res.data['email'], self.user_data['email'])
         self.assertEqual(self.user_data['password'], self.user_data['confirm_password'])
         self.assertEqual(res.status_code, 201)
+
+    def test_user_cannot_login_with_unverified_email(self):
+        self.client.post(self.register_url, self.user_data, format='json')
+        res = self.client.post(self.login_url, self.user_data)
+        self.assertEqual(res.status_code, 403)
