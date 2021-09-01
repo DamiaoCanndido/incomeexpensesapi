@@ -51,6 +51,9 @@ class MyUserManager(UserManager):
         return self._create_user(username, email, password, **extra_fields)
 
 
+PROVIDER_AUTH = {'facebook': 'facebook', 'google': 'google', 'twitter': 'twitter', 'email': 'email'}
+
+
 class User(AbstractBaseUser, PermissionsMixin, TrackingModel):
     username_validator = UnicodeUsernameValidator()
 
@@ -86,6 +89,7 @@ class User(AbstractBaseUser, PermissionsMixin, TrackingModel):
             'Designates whether this users email is verified. '
         ),
     )
+    auth_provider = models.CharField(_('email address'), blank=False, max_length=255, null=False, default=PROVIDER_AUTH.get('email'))
     objects = MyUserManager()
 
     EMAIL_FIELD = 'email'
