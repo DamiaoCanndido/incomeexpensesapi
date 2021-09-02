@@ -46,7 +46,13 @@ class LoginSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         email = attrs.get('email', '')
         password = attrs.get('password', '')
+        filtered_user_by_email = User.objects.filter(email=email)
         user = auth.authenticate(email=email, password=password)
+
+        if filtered_user_by_email.exists() and filtered_user_by_email[0].auth_provider != 'email':
+            raise AuthenticationFailed(
+                detail='Please continue your login using ' + filtered_user_by_email[0].auth_provider)
+
         if not user:
             raise AuthenticationFailed('Invalid credentials.')
         if not user.is_active:
