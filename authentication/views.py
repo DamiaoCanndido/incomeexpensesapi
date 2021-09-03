@@ -1,7 +1,7 @@
 from rest_framework.generics import GenericAPIView
 from rest_framework.serializers import Serializer
-from authentication.serializers import EmailVerificationSerializer, LoginSerializer, RegisterSerializer, RequestPasswordResetEmailSerializer, SetNewPasswordSerializer
-from rest_framework import response, status, views
+from authentication.serializers import EmailVerificationSerializer, LoginSerializer, RegisterSerializer, RequestPasswordResetEmailSerializer, SetNewPasswordSerializer, LogoutSerializer
+from rest_framework import response, status, views, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
 import jwt
 from .models import User
@@ -126,4 +126,18 @@ class SetNewPasswordAPIView(GenericAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         return response.Response({'success': True, 'message': 'Password reset success'}, status=status.HTTP_200_OK)
+
+
+class LogoutAPIView(GenericAPIView):
+
+    serializer_class = LogoutSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return response.Response(status=status.HTTP_204_NO_CONTENT)
+
 
