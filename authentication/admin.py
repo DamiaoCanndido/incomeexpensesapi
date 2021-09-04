@@ -6,3 +6,4 @@ from .models import User
 @admin.register(User)
 class UserAdmin(UserAdmin):
     list_display = ('email', 'username', 'is_staff')
+
